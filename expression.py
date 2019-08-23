@@ -6,14 +6,14 @@ class KnownExpression(Expression):
     @staticmethod
     def from_value(v):
         if v:
-            return T()
+            return T
         else:
-            return F()
+            return F
 
 
-class F(KnownExpression):
+class FalseType(KnownExpression):
     def __eq__(self, other) -> bool:
-        return isinstance(other, F)
+        return isinstance(other, FalseType)
 
     def __bool__(self) -> bool:
         return False
@@ -22,15 +22,15 @@ class F(KnownExpression):
         return "F"
 
     def __repr__(self) -> str:
-        return "F()"
+        return self.__class__.__name__ + "()"
 
     def __hash__(self) -> int:
         return hash(False)
 
 
-class T(KnownExpression):
+class TrueType(KnownExpression):
     def __eq__(self, other) -> bool:
-        return isinstance(other, T)
+        return isinstance(other, TrueType)
 
     def __bool__(self) -> bool:
         return True
@@ -39,10 +39,14 @@ class T(KnownExpression):
         return "T"
 
     def __repr__(self) -> str:
-        return "T()"
+        return self.__class__.__name__ + "()"
 
     def __hash__(self) -> int:
         return hash(True)
+
+
+T = TrueType()
+F = FalseType()
 
 
 class UnknownExpression(Expression):

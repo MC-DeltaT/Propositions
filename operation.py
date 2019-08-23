@@ -1,4 +1,4 @@
-from expression import Expression, KnownExpression, F, T, UnknownExpression
+from expression import Expression, F, FalseType, KnownExpression, T, TrueType, UnknownExpression
 from truthtable import TruthTable
 
 
@@ -9,8 +9,8 @@ class UnaryOperation(UnknownExpression):
 
 class Negation(UnaryOperation):
     truth = TruthTable([
-        ((F(),), T()),
-        ((T(),), F())
+        ((F,), T),
+        ((T,), F)
     ])
 
 
@@ -22,46 +22,46 @@ class BinaryOperation(UnknownExpression):
 
 class Conjunction(BinaryOperation):
     truth = TruthTable([
-        ((F(), F()), F()),
-        ((F(), T()), F()),
-        ((T(), F()), F()),
-        ((T(), T()), T())
+        ((F, F), F),
+        ((F, T), F),
+        ((T, F), F),
+        ((T, T), T)
     ])
 
 
 class Disjunction(BinaryOperation):
     truth = TruthTable([
-        ((F(), F()), F()),
-        ((F(), T()), T()),
-        ((T(), F()), T()),
-        ((T(), T()), T())
+        ((F, F), F),
+        ((F, T), T),
+        ((T, F), T),
+        ((T, T), T)
     ])
 
 
 class ExclDisjunction(BinaryOperation):
     truth = TruthTable([
-        ((F(), F()), F()),
-        ((F(), T()), T()),
-        ((T(), F()), T()),
-        ((T(), T()), F())
+        ((F, F), F),
+        ((F, T), T),
+        ((T, F), T),
+        ((T, T), F)
     ])
 
 
 class Implication(BinaryOperation):
     truth = TruthTable([
-        ((F(), F()), T()),
-        ((F(), T()), T()),
-        ((T(), F()), F()),
-        ((T(), T()), T())
+        ((F, F), T),
+        ((F, T), T),
+        ((T, F), F),
+        ((T, T), T)
     ])
 
 
 class Biconditional(BinaryOperation):
     truth = TruthTable([
-        ((F(), F()), T()),
-        ((F(), T()), F()),
-        ((T(), F()), F()),
-        ((T(), T()), T())
+        ((F, F), T),
+        ((F, T), F),
+        ((T, F), F),
+        ((T, T), T)
     ])
 
 
@@ -76,8 +76,8 @@ def negation(rhs: Expression) -> Expression:
 def conjunction(lhs: Expression, rhs: Expression) -> Expression:
     if isinstance(lhs, KnownExpression) and isinstance(rhs, KnownExpression):
         return KnownExpression.from_value(lhs and rhs)
-    elif isinstance(lhs, F) or isinstance(rhs, F):
-        return F()
+    elif isinstance(lhs, FalseType) or isinstance(rhs, FalseType):
+        return F
     else:
         assert isinstance(lhs, UnknownExpression)
         assert isinstance(rhs, UnknownExpression)
@@ -87,8 +87,8 @@ def conjunction(lhs: Expression, rhs: Expression) -> Expression:
 def disjunction(lhs: Expression, rhs: Expression) -> Expression:
     if isinstance(lhs, KnownExpression) and isinstance(rhs, KnownExpression):
         return KnownExpression.from_value(lhs or rhs)
-    elif isinstance(lhs, T) or isinstance(rhs, T):
-        return T()
+    elif isinstance(lhs, TrueType) or isinstance(rhs, TrueType):
+        return T
     else:
         assert isinstance(lhs, UnknownExpression)
         assert isinstance(rhs, UnknownExpression)
