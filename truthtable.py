@@ -1,12 +1,12 @@
-from expression import KnownExpression
+from value import BooleanValue
 
 from typing import List, Mapping, Sequence, Tuple, Union
 
 
-Inputs = Tuple[KnownExpression, ...]
-InputRestriction = Tuple[Union[KnownExpression, None], ...]
-Output = KnownExpression
-OutputRestriction = Union[KnownExpression, None]
+Inputs = Tuple[BooleanValue, ...]
+InputRestriction = Tuple[Union[BooleanValue, None], ...]
+Output = BooleanValue
+OutputRestriction = Union[BooleanValue, None]
 Row = Tuple[Inputs, Output]
 
 
@@ -17,7 +17,7 @@ class TruthTable:
         self.table = frozenset(rows)
         self.hashtable = self._create_hashtable(rows)
 
-    def lookup(self, inputs: Inputs) -> KnownExpression:
+    def lookup(self, inputs: Inputs) -> BooleanValue:
         if len(inputs) != self.num_inputs:
             raise ValueError("Expected {} inputs but got {}.".format(self.num_inputs, len(inputs)))
         try:

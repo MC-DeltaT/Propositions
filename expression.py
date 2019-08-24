@@ -1,59 +1,27 @@
-class Expression:
-    pass
+from value import BooleanValue, T, F
+
+from abc import ABC, abstractmethod
+from typing import Set
 
 
-class KnownExpression(Expression):
-    @staticmethod
-    def from_value(v):
-        if v:
-            return T
-        else:
-            return F
+class Expression(ABC):
+    @abstractmethod
+    def values(self) -> Set[BooleanValue]:
+        pass
+
+    def could_be(self, value: BooleanValue) -> bool:
+        return value in self.values()
 
 
-class FalseType(KnownExpression):
-    def __eq__(self, other) -> bool:
-        return isinstance(other, FalseType)
+class Literal(Expression):
+    def __init__(self, value: BooleanValue) -> None:
+        self.value = value
 
-    def __bool__(self) -> bool:
-        return False
-
-    def __str__(self) -> str:
-        return "F"
-
-    def __repr__(self) -> str:
-        return self.__class__.__name__ + "()"
-
-    def __hash__(self) -> int:
-        return hash(False)
+    def values(self) -> Set[BooleanValue]:
+        return {self.value}
 
 
-class TrueType(KnownExpression):
-    def __eq__(self, other) -> bool:
-        return isinstance(other, TrueType)
-
-    def __bool__(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return "T"
-
-    def __repr__(self) -> str:
-        return self.__class__.__name__ + "()"
-
-    def __hash__(self) -> int:
-        return hash(True)
-
-
-T = TrueType()
-F = FalseType()
-
-
-class UnknownExpression(Expression):
-    pass
-
-
-class Variable(UnknownExpression):
+class Variable(Expression):
     def __init__(self, name: str) -> None:
         if len(name) == 0:
             raise ValueError("name must not be empty.")
@@ -61,7 +29,10 @@ class Variable(UnknownExpression):
             raise ValueError("name must contain only letters.")
         self.name = name
 
-    def substitute(self, **variables: KnownExpression) -> KnownExpression:
+    def values(self) -> Set[BooleanValue]:
+        return {T, F}
+
+    def substitute(self, **variables: Literal) -> Literal:
         if self.name in variables:
             return variables[self.name]
         else:
