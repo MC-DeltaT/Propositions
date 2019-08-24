@@ -1,4 +1,4 @@
-from value import BooleanValue, T, F
+from value import BooleanValue, F, T
 
 from abc import ABC, abstractmethod
 from typing import Set
@@ -30,7 +30,7 @@ class Variable(Expression):
         self.name = name
 
     def values(self) -> Set[BooleanValue]:
-        return {T, F}
+        return {F, T}
 
     def substitute(self, **variables: Literal) -> Literal:
         if self.name in variables:

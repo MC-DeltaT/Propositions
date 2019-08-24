@@ -1,12 +1,11 @@
 from value import BooleanValue
 
-from typing import FrozenSet, List, Mapping, Sequence, Tuple, Union
+from typing import FrozenSet, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 
 Inputs = Tuple[BooleanValue, ...]
-InputRestriction = Sequence[Union[BooleanValue, None]]
+ValueRestriction = Union[Set[BooleanValue], None]
 Output = BooleanValue
-OutputRestriction = Union[BooleanValue, None]
 Row = Tuple[Inputs, Output]
 
 
@@ -25,22 +24,28 @@ class TruthTable:
         except KeyError:
             raise ValueError("Input of {} does not map to any output.".format(inputs))
 
-    def restrict(self, input_restrict: InputRestriction = None, output_restrict: OutputRestriction = None):
+    def restrict(self, input_restrict: Optional[Sequence[ValueRestriction]] = None, output_restrict: ValueRestriction = None):
         if len(input_restrict) != self.num_inputs:
             raise ValueError("Expected {} inputs but got {}.".format(self.num_inputs, len(input_restrict)))
         new_rows: List[Row] = []
         for row in self.table:
             match = True
-            if output_restrict is not None and output_restrict != row[1]:
+            if output_restrict is not None and row[1] not in output_restrict:
                 match = False
             for i, i_r in zip(row[0], input_restrict):
-                if i_r is not None and i != i_r:
+                if i_r is not None and i not in i_r:
                     match = False
             if match:
                 new_rows.append(row)
         if not new_rows:
             raise ValueError("Restriction would eliminate all rows from table.")
         return TruthTable(new_rows)
+
+    def outputs(self) -> Set[BooleanValue]:
+        return {row[1] for row in self.table}
+
+    def could_output(self, value: BooleanValue) -> bool:
+        return value in self.outputs()
 
     def __eq__(self, other):
         return isinstance(other, TruthTable) and self.table == other.table
