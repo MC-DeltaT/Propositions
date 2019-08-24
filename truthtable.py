@@ -3,6 +3,11 @@ from value import BooleanValue
 from typing import FrozenSet, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 
+__all__ = [
+    "TruthTable"
+]
+
+
 Inputs = Tuple[BooleanValue, ...]
 ValueRestriction = Union[Set[BooleanValue], None]
 Output = BooleanValue

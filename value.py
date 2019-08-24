@@ -1,6 +1,16 @@
 from abc import ABC, abstractmethod
 
 
+__all__ = [
+    "BooleanValue",
+    "F",
+    "FalseType",
+    "from_bool",
+    "T",
+    "TrueType"
+]
+
+
 class BooleanValue(ABC):
     @property
     @abstractmethod
@@ -15,6 +25,9 @@ class BooleanValue(ABC):
     def __hash__(self) -> int:
         pass
 
+    def __bool__(self) -> bool:
+        return self.value
+
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -22,9 +35,6 @@ class BooleanValue(ABC):
     @abstractmethod
     def __repr__(self) -> str:
         pass
-
-    def __bool__(self) -> bool:
-        return self.value
 
 
 class FalseType(BooleanValue):
