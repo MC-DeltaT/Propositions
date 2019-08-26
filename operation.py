@@ -30,8 +30,18 @@ class UnaryOperation(Operation, ABC):
         self.rhs = rhs
 
     @property
+    @abstractmethod
+    def symbol(self) -> str:
+        pass
+
+    @property
     def truth(self) -> TruthTable:
-        return join_tables(self.join, (self.rhs.truth,))
+        table = join_tables(self.join, (self.rhs.truth,))
+        table.name = str(self)
+        return table
+
+    def __str__(self) -> str:
+        return "({}{})".format(self.symbol, self.rhs)
 
 
 class Negation(UnaryOperation):
@@ -40,7 +50,11 @@ class Negation(UnaryOperation):
         return TruthTable(1, {
             (F,): T,
             (T,): F
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "¬"
 
 
 class BinaryOperation(Operation, ABC):
@@ -49,8 +63,18 @@ class BinaryOperation(Operation, ABC):
         self.rhs = rhs
 
     @property
+    @abstractmethod
+    def symbol(self) -> str:
+        pass
+
+    @property
     def truth(self) -> TruthTable:
-        return join_tables(self.join, (self.lhs.truth, self.rhs.truth))
+        table = join_tables(self.join, (self.lhs.truth, self.rhs.truth))
+        table.name = str(self)
+        return table
+
+    def __str__(self) -> str:
+        return "({} {} {})".format(self.lhs, self.symbol, self.rhs)
 
 
 class Conjunction(BinaryOperation):
@@ -61,7 +85,11 @@ class Conjunction(BinaryOperation):
             (F, T): F,
             (T, F): F,
             (T, T): T
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "∧"
 
 
 class Disjunction(BinaryOperation):
@@ -72,7 +100,11 @@ class Disjunction(BinaryOperation):
             (F, T): T,
             (T, F): T,
             (T, T): T
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "∨"
 
 
 class ExclDisjunction(BinaryOperation):
@@ -83,7 +115,11 @@ class ExclDisjunction(BinaryOperation):
             (F, T): T,
             (T, F): T,
             (T, T): F
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "⊕"
 
 
 class Implication(BinaryOperation):
@@ -94,7 +130,11 @@ class Implication(BinaryOperation):
             (F, T): T,
             (T, F): F,
             (T, T): T
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "→"
 
 
 class Biconditional(BinaryOperation):
@@ -105,4 +145,8 @@ class Biconditional(BinaryOperation):
             (F, T): F,
             (T, F): F,
             (T, T): T
-        })
+        }, self.symbol)
+
+    @property
+    def symbol(self) -> str:
+        return "↔"

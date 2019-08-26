@@ -2,7 +2,7 @@ from truthtable import Input, TruthTable
 from value import BooleanValue, F, T
 
 from abc import ABC, abstractmethod
-from typing import Set
+from typing import Any, Set
 
 
 __all__ = [
@@ -46,6 +46,15 @@ class Literal(SimpleExpression):
             (self.value,): self.value
         })
 
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Literal) and self.value == other.value
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    def __repr__(self) -> str:
+        return "Literal(value={})".format(repr(self.value))
+
 
 class Variable(SimpleExpression):
     def __init__(self, name: str) -> None:
@@ -62,7 +71,7 @@ class Variable(SimpleExpression):
             (T,): T
         })
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return isinstance(other, Variable) and self.name == other.name
 
     def __str__(self) -> str:

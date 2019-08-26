@@ -1,6 +1,6 @@
 from value import BooleanValue, F, T
 
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 
 __all__ = [
@@ -27,12 +27,13 @@ class Input:
 
 
 class TruthTable:
-    def __init__(self, inputs: Union[Sequence[Input], int], table) -> None:
+    def __init__(self, inputs: Union[Sequence[Input], int], table: Mapping[Tuple[BooleanValue, ...], BooleanValue], name: Optional[str] = None) -> None:
         if isinstance(inputs, int):
             self.inputs = tuple(Input() for _ in range(inputs))
         else:
             self.inputs = inputs
         self.table = table
+        self.name = name
 
     def outputs(self) -> Set[BooleanValue]:
         return set(self.table.values())
@@ -42,6 +43,21 @@ class TruthTable:
 
     def __getitem__(self, inputs: Tuple[BooleanValue, ...]) -> BooleanValue:
         return self.table[inputs]
+
+    def print(self) -> None:
+        in_divider = " | "
+        out_divider = " || "
+        headers = [str(i.tag) for i in self.inputs]
+        header = in_divider.join(headers) + out_divider + ("<out>" if self.name is None else self.name)
+        print(header)
+        for inputs, output in self.table.items():
+            cols: List[str] = []
+            for i, value in enumerate(inputs):
+                s = str(value)
+                s = " " * (len(headers[i]) - len(s)) + s
+                cols.append(s)
+            row = in_divider.join(cols) + out_divider + str(output)
+            print(row)
 
 
 def join_tables(join_op: TruthTable, tables: Sequence[TruthTable]) -> TruthTable:
