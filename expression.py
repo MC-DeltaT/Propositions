@@ -1,3 +1,4 @@
+from truthtable import Input, TruthTable
 from value import BooleanValue, F, T
 
 from abc import ABC, abstractmethod
@@ -5,30 +6,48 @@ from typing import Set
 
 
 __all__ = [
+    "CompoundExpression",
     "Expression",
     "Literal",
+    "SimpleExpression",
     "Variable"
 ]
 
 
 class Expression(ABC):
+    @property
     @abstractmethod
-    def values(self) -> Set[BooleanValue]:
+    def truth(self) -> TruthTable:
         pass
 
+    @property
+    def values(self) -> Set[BooleanValue]:
+        return self.truth.outputs()
+
     def could_be(self, value: BooleanValue) -> bool:
-        return value in self.values()
+        return self.truth.could_output(value)
 
 
-class Literal(Expression):
+class SimpleExpression(Expression, ABC):
+    pass
+
+
+class CompoundExpression(Expression, ABC):
+    pass
+
+
+class Literal(SimpleExpression):
     def __init__(self, value: BooleanValue) -> None:
         self.value = value
 
-    def values(self) -> Set[BooleanValue]:
-        return {self.value}
+    @property
+    def truth(self) -> TruthTable:
+        return TruthTable((Input(self.value, {self.value}),), {
+            (self.value,): self.value
+        })
 
 
-class Variable(Expression):
+class Variable(SimpleExpression):
     def __init__(self, name: str) -> None:
         if len(name) == 0:
             raise ValueError("name must not be empty.")
@@ -36,14 +55,12 @@ class Variable(Expression):
             raise ValueError("name must contain only letters.")
         self.name = name
 
-    def values(self) -> Set[BooleanValue]:
-        return {F, T}
-
-    def substitute(self, **variables: Literal) -> Literal:
-        if self.name in variables:
-            return variables[self.name]
-        else:
-            raise TypeError("Value of variable {} not specified.".format(self.name))
+    @property
+    def truth(self) -> TruthTable:
+        return TruthTable((Input(self),), {
+            (F,): F,
+            (T,): T
+        })
 
     def __eq__(self, other):
         return isinstance(other, Variable) and self.name == other.name

@@ -1,74 +1,86 @@
-from value import BooleanValue
+from value import BooleanValue, F, T
 
-from typing import FrozenSet, List, Mapping, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 
 __all__ = [
-    "TruthTable"
+    "Input",
+    "join_tables",
+    "TruthTable",
+    "value_combinations"
 ]
 
 
-Inputs = Tuple[BooleanValue, ...]
-ValueRestriction = Union[Set[BooleanValue], None]
-Output = BooleanValue
-Row = Tuple[Inputs, Output]
+class Input:
+    def __init__(self, tag: Optional[Any] = None, values: Optional[Set[BooleanValue]] = None) -> None:
+        if values is None:
+            self.values = {F, T}
+        else:
+            self.values = values
+        if tag is None:
+            self.tag = object()
+        else:
+            self.tag = tag
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Input) and self.tag == other.tag
 
 
 class TruthTable:
-    def __init__(self, rows: Sequence[Row]) -> None:
-        self._check(rows)
-        self.num_inputs = len(rows[0][0])
-        self.table = self._create_table(rows)
-        self.hashtable = self._create_hashtable(rows)
-
-    def lookup(self, inputs: Inputs) -> BooleanValue:
-        if len(inputs) != self.num_inputs:
-            raise ValueError("Expected {} inputs but got {}.".format(self.num_inputs, len(inputs)))
-        try:
-            return self.hashtable[inputs]
-        except KeyError:
-            raise ValueError("Input of {} does not map to any output.".format(inputs))
-
-    def restrict(self, input_restrict: Optional[Sequence[ValueRestriction]] = None, output_restrict: ValueRestriction = None):
-        if len(input_restrict) != self.num_inputs:
-            raise ValueError("Expected {} inputs but got {}.".format(self.num_inputs, len(input_restrict)))
-        new_rows: List[Row] = []
-        for row in self.table:
-            match = True
-            if output_restrict is not None and row[1] not in output_restrict:
-                match = False
-            for i, i_r in zip(row[0], input_restrict):
-                if i_r is not None and i not in i_r:
-                    match = False
-            if match:
-                new_rows.append(row)
-        if not new_rows:
-            raise ValueError("Restriction would eliminate all rows from table.")
-        return TruthTable(new_rows)
+    def __init__(self, inputs: Union[Sequence[Input], int], table) -> None:
+        if isinstance(inputs, int):
+            self.inputs = tuple(Input() for _ in range(inputs))
+        else:
+            self.inputs = inputs
+        self.table = table
 
     def outputs(self) -> Set[BooleanValue]:
-        return {row[1] for row in self.table}
+        return set(self.table.values())
 
     def could_output(self, value: BooleanValue) -> bool:
         return value in self.outputs()
 
-    def __eq__(self, other):
-        return isinstance(other, TruthTable) and self.table == other.table
+    def __getitem__(self, inputs: Tuple[BooleanValue, ...]) -> BooleanValue:
+        return self.table[inputs]
 
-    @staticmethod
-    def _check(rows: Sequence[Row]) -> None:
-        if len(rows) < 1:
-            raise ValueError("Truth table must have at least 1 row.")
-        prev_row = rows[0]
-        for row in rows[1:]:
-            if len(row[0]) != len(prev_row[0]):
-                raise ValueError("Rows must have the same length.")
-            prev_row = row
 
-    @staticmethod
-    def _create_table(rows: Sequence[Row]) -> FrozenSet[Row]:
-        return frozenset(rows)
+def join_tables(join_op: TruthTable, tables: Sequence[TruthTable]) -> TruthTable:
+    input_vars = tuple(table.inputs for table in tables)
 
-    @staticmethod
-    def _create_hashtable(rows: Sequence[Row]) -> Mapping[Inputs, Output]:
-        return {row[0]: row[1] for row in rows}
+    input_var_indices: List[List[int]] = [[] for _ in input_vars]
+    res_vars = []
+    for variables, indices in zip(input_vars, input_var_indices):
+        for var in variables:
+            if var in res_vars:
+                indices.append(res_vars.index(var))
+            else:
+                res_vars.append(var)
+                indices.append(len(res_vars) - 1)
+
+    res_tt: Dict[Tuple[BooleanValue, ...], BooleanValue] = {}
+    for new_inputs in value_combinations(res_vars):
+        base_inputs = (tuple(new_inputs[i] for i in indices) for indices in input_var_indices)
+        base_outputs = tuple(tt[inputs] for tt, inputs in zip(tables, base_inputs))
+        output = join_op[base_outputs]
+        res_tt[new_inputs] = output
+
+    return TruthTable(tuple(res_vars), res_tt)
+
+
+def value_combinations(inputs: Sequence[Input]) -> List[Tuple[BooleanValue, ...]]:
+    var_values = [list(var.values) for var in inputs]
+    indices = [0] * len(inputs)
+    result: List[Tuple[BooleanValue, ...]] = []
+    while True:
+        combo = tuple(values[idx] for values, idx in zip(var_values, indices))
+        result.append(combo)
+        carry = True
+        for i in reversed(range(len(inputs))):
+            if carry:
+                indices[i] = (indices[i] + 1) % len(var_values[i])
+                if indices[i] != 0:
+                    carry = False
+                    break
+        if carry:
+            break
+    return result
