@@ -22,10 +22,31 @@ class Expression(ABC):
 
     @property
     def values(self) -> Set[BooleanValue]:
-        return self.truth.outputs()
+        return self.truth.outputs
+
+    @property
+    def is_exact(self) -> bool:
+        return len(self.values) == 1
+
+    @property
+    def exact_value(self) -> BooleanValue:
+        if not self.is_exact:
+            raise ValueError("Expression is not exact.")
+        return next(iter(self.values))
+
+    @property
+    def is_contradiction(self) -> bool:
+        return self.is_exact and not bool(self.exact_value)
+
+    @property
+    def is_tautology(self) -> bool:
+        return self.is_exact and bool(self.exact_value)
 
     def could_be(self, value: BooleanValue) -> bool:
-        return self.truth.could_output(value)
+        return value in self.values
+
+    def probability(self, value: BooleanValue) -> float:
+        return self.truth.distribution[value]
 
 
 class SimpleExpression(Expression, ABC):

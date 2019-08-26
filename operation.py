@@ -1,5 +1,5 @@
-from expression import CompoundExpression, Expression
-from truthtable import TruthTable, join_tables
+from expression import CompoundExpression, Expression, SimpleExpression
+from truthtable import join_tables, TruthTable
 from value import F, T
 
 from abc import ABC, abstractmethod
@@ -41,7 +41,13 @@ class UnaryOperation(Operation, ABC):
         return table
 
     def __str__(self) -> str:
-        return "({}{})".format(self.symbol, self.rhs)
+        if isinstance(self.rhs, SimpleExpression) or isinstance(self.rhs, UnaryOperation):
+            return "{}{}".format(self.symbol, self.rhs)
+        else:
+            return "({}{})".format(self.symbol, self.rhs)
+
+    def __repr__(self) -> str:
+        return "{}(rhs={})".format(self.__class__.__name__, repr(self.rhs))
 
 
 class Negation(UnaryOperation):
@@ -75,6 +81,9 @@ class BinaryOperation(Operation, ABC):
 
     def __str__(self) -> str:
         return "({} {} {})".format(self.lhs, self.symbol, self.rhs)
+
+    def __repr__(self) -> str:
+        return "{}(lhs={}, rhs={})".format(self.__class__.__name__, repr(self.lhs), repr(self.rhs))
 
 
 class Conjunction(BinaryOperation):
@@ -119,7 +128,7 @@ class ExclDisjunction(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "⊕"
+        return "⊻"
 
 
 class Implication(BinaryOperation):

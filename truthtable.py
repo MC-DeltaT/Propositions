@@ -12,13 +12,23 @@ __all__ = [
 
 
 class Input:
+    class UniqueTag:
+        def __init__(self, value: Any) -> None:
+            self.value = value
+
+        def __str__(self) -> str:
+            return str(self.value)
+
+        def __repr__(self) -> str:
+            return str(self.value)
+
     def __init__(self, tag: Optional[Any] = None, values: Optional[Set[BooleanValue]] = None) -> None:
         if values is None:
             self.values = {F, T}
         else:
             self.values = values
         if tag is None:
-            self.tag = object()
+            self.tag = self.UniqueTag("<no_tag>")
         else:
             self.tag = tag
 
@@ -29,17 +39,19 @@ class Input:
 class TruthTable:
     def __init__(self, inputs: Union[Sequence[Input], int], table: Mapping[Tuple[BooleanValue, ...], BooleanValue], name: Optional[str] = None) -> None:
         if isinstance(inputs, int):
-            self.inputs = tuple(Input() for _ in range(inputs))
+            self.inputs = tuple(Input.UniqueTag("<{}>".format(i + 1)) for i in range(inputs))
         else:
             self.inputs = inputs
         self.table = table
         self.name = name
 
+    @property
     def outputs(self) -> Set[BooleanValue]:
         return set(self.table.values())
 
-    def could_output(self, value: BooleanValue) -> bool:
-        return value in self.outputs()
+    @property
+    def distribution(self) -> Dict[BooleanValue, float]:
+        return {value: sum(1 for v in self.table.values() if v == value) / len(self.table) for value in (F, T)}
 
     def __getitem__(self, inputs: Tuple[BooleanValue, ...]) -> BooleanValue:
         return self.table[inputs]

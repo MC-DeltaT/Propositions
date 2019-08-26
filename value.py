@@ -19,24 +19,11 @@ class BooleanValue(ABC):
     def value(self) -> bool:
         pass
 
-    @abstractmethod
-    def __eq__(self, other: Any) -> bool:
-        pass
-
-    @abstractmethod
-    def __hash__(self) -> int:
-        pass
-
     def __bool__(self) -> bool:
         return self.value
 
-    @abstractmethod
-    def __str__(self) -> str:
-        pass
-
-    @abstractmethod
     def __repr__(self) -> str:
-        pass
+        return self.__class__.__name__ + "()"
 
 
 class FalseType(BooleanValue):
@@ -53,9 +40,6 @@ class FalseType(BooleanValue):
     def __str__(self) -> str:
         return "F"
 
-    def __repr__(self) -> str:
-        return self.__class__.__name__ + "()"
-
 
 class TrueType(BooleanValue):
     @property
@@ -70,9 +54,6 @@ class TrueType(BooleanValue):
 
     def __str__(self) -> str:
         return "T"
-
-    def __repr__(self) -> str:
-        return self.__class__.__name__ + "()"
 
 
 F = FalseType()
