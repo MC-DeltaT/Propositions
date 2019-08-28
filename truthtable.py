@@ -1,4 +1,4 @@
-from value import BooleanValue, F, T
+from boolean import BooleanValue, F, T
 
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
 

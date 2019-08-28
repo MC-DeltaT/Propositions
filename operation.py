@@ -1,6 +1,6 @@
 from expression import CompoundExpression, Expression, SimpleExpression
 from truthtable import join_tables, TruthTable
-from value import F, T
+from boolean import F, T
 
 from abc import ABC, abstractmethod
 

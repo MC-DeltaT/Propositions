@@ -1,5 +1,5 @@
 from truthtable import Input, TruthTable
-from value import BooleanValue, F, T
+from boolean import BooleanValue, F, T
 
 from abc import ABC, abstractmethod
 from typing import Any, Set
