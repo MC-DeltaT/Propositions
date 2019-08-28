@@ -65,7 +65,7 @@ class Literal(SimpleExpression):
     def truth(self) -> TruthTable:
         return TruthTable((Input(self.value, {self.value}),), {
             (self.value,): self.value
-        })
+        }, str(self))
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Literal) and self.value == other.value
@@ -90,7 +90,7 @@ class Variable(SimpleExpression):
         return TruthTable((Input(self),), {
             (F,): F,
             (T,): T
-        })
+        }, str(self))
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Variable) and self.name == other.name
