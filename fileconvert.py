@@ -80,11 +80,11 @@ def decode(input_path: str, output_path: str) -> None:
     except OSError:
         print("Failed to read line from input file.")
         return
-
-    try:
-        input_file.close()
-    except OSError:
-        pass
+    finally:
+        try:
+            input_file.close()
+        except OSError:
+            pass
 
     if len(bits) % 8 != 0:
         print("Number of input bits is not a multiple of 8.")
@@ -106,11 +106,11 @@ def decode(input_path: str, output_path: str) -> None:
     except OSError:
         print("Failed to write to output file.")
         return
-
-    try:
-        output_file.close()
-    except OSError:
-        pass
+    finally:
+        try:
+            output_file.close()
+        except OSError:
+            pass
 
 
 def encode(input_path: str, output_path: str) -> None:
@@ -128,6 +128,11 @@ def encode(input_path: str, output_path: str) -> None:
     except OSError:
         print("Failed to read line from input file.")
         return
+    finally:
+        try:
+            input_file.close()
+        except OSError:
+            pass
 
     bits = bytes_to_bits(bytes_)
 
@@ -149,6 +154,11 @@ def encode(input_path: str, output_path: str) -> None:
     except OSError:
         print("Failed to write to output file.")
         return
+    finally:
+        try:
+            output_file.close()
+        except OSError:
+            pass
 
 
 if len(sys.argv) != 4:
