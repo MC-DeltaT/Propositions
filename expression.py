@@ -9,6 +9,8 @@ __all__ = [
     "CompoundExpression",
     "Expression",
     "Literal",
+    "literal_f",
+    "literal_t",
     "SimpleExpression",
     "Variable"
 ]
@@ -100,3 +102,7 @@ class Variable(SimpleExpression):
 
     def __repr__(self) -> str:
         return "Variable(name={})".format(self.name)
+
+
+literal_f = Literal(F)
+literal_t = Literal(T)

@@ -8,13 +8,16 @@ from abc import ABC, abstractmethod
 __all__ = [
     "Biconditional",
     "BinaryOperation",
+    "binary_operations",
     "Conjunction",
     "Disjunction",
     "ExclDisjunction",
+    "Identity",
     "Implication",
     "Negation",
     "Operation",
     "UnaryOperation",
+    "unary_operations",
 ]
 
 
@@ -50,6 +53,19 @@ class UnaryOperation(Operation, ABC):
         return "{}(rhs={})".format(self.__class__.__name__, repr(self.rhs))
 
 
+class Identity(UnaryOperation):
+    @property
+    def join(self) -> TruthTable:
+        return TruthTable(1, {
+            (F,): F,
+            (T,): T
+        })
+
+    @property
+    def symbol(self) -> str:
+        return ""
+
+
 class Negation(UnaryOperation):
     @property
     def join(self) -> TruthTable:
@@ -60,7 +76,7 @@ class Negation(UnaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "¬"
+        return "~"
 
 
 class BinaryOperation(Operation, ABC):
@@ -98,7 +114,7 @@ class Conjunction(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "∧"
+        return "&"
 
 
 class Disjunction(BinaryOperation):
@@ -113,7 +129,7 @@ class Disjunction(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "∨"
+        return "|"
 
 
 class ExclDisjunction(BinaryOperation):
@@ -128,7 +144,7 @@ class ExclDisjunction(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "⊻"
+        return "+"
 
 
 class Implication(BinaryOperation):
@@ -143,7 +159,7 @@ class Implication(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "→"
+        return "->"
 
 
 class Biconditional(BinaryOperation):
@@ -158,4 +174,18 @@ class Biconditional(BinaryOperation):
 
     @property
     def symbol(self) -> str:
-        return "↔"
+        return "<->"
+
+
+unary_operations = [
+    Identity,
+    Negation
+]
+
+binary_operations = [
+    Biconditional,
+    Conjunction,
+    Disjunction,
+    ExclDisjunction,
+    Implication
+]

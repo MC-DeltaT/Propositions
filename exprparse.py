@@ -8,14 +8,12 @@ from typing import List, Sequence, Union
 
 
 __all__ = [
-    "evaluate"
+    "InvalidSyntax",
+    "parse"
 ]
 
 
 class Token(ABC):
-    # source: the string the token came from.
-    # start_pos: the index in source of the first character in this token.
-    # end_pos: the index in source of the last character in this token, + 1.
     def __init__(self, source: str, start_pos: int, end_pos: int) -> None:
         if start_pos < 0:
             raise ValueError("start_pos must be >= 0.")
@@ -89,13 +87,13 @@ class Operator(Token, ABC):
 class UnaryOperator(Operator):
     @property
     def description(self) -> str:
-        return "binary operator"
+        return "unary operator"
 
 
 class BinaryOperator(Operator):
     @property
     def description(self) -> str:
-        return "unary operator"
+        return "binary operator"
 
 
 class OpenParenthesis(Token):
@@ -131,13 +129,13 @@ token_regexes = [
     (r"\)", CloseParenthesis),
     ("[TF]", BooleanLiteral),
     ("~", UnaryOperator),
-    ("[&|+]|->|<>", BinaryOperator),
-    (r"[a-zA-Z]+", Variable)
+    ("<->|->|[&|+]", BinaryOperator),
+    (r"[a-z]+", Variable)
 ]
 
 
 # A sequence of 2 consecutive tokens must be one of these to be valid.
-valid_sequences = [
+valid_sequences = (
     (StartOfTokens, EndOfTokens),
     (StartOfTokens, SimpleExpression),
     (StartOfTokens, OpenParenthesis),
@@ -147,6 +145,7 @@ valid_sequences = [
     (SimpleExpression, EndOfTokens),
     (UnaryOperator, SimpleExpression),
     (UnaryOperator, OpenParenthesis),
+    (UnaryOperator, UnaryOperator),
     (BinaryOperator, SimpleExpression),
     (BinaryOperator, UnaryOperator),
     (BinaryOperator, OpenParenthesis),
@@ -156,7 +155,7 @@ valid_sequences = [
     (CloseParenthesis, BinaryOperator),
     (CloseParenthesis, CloseParenthesis),
     (CloseParenthesis, EndOfTokens),
-]
+)
 
 
 # Maps operator strings to their precedence and class.
@@ -166,15 +165,14 @@ operator_info = {
     "|": OperatorInfo(3, operation.Disjunction),
     "+": OperatorInfo(2, operation.ExclDisjunction),
     "->": OperatorInfo(1, operation.Implication),
-    "<>": OperatorInfo(0, operation.Biconditional)
+    "<->": OperatorInfo(0, operation.Biconditional)
 }
 
 
-def evaluate(expr: str) -> Union[expression.Expression, None]:
+def parse(expr: str) -> Union[expression.Expression, None]:
     tokens = parse_tokens(expr)
     check_syntax(tokens)
     postfix = infix_to_postfix(tokens)
-    print(postfix)
     result = evaluate_postfix(postfix)
     return result
 
@@ -239,15 +237,15 @@ def infix_to_postfix(tokens: Sequence[Token]) -> List[Token]:
                 raise InvalidSyntax(token.start_pos, "Unmatched closing parenthesis.")
             operators.pop()
 
-        elif isinstance(token, Operator):
+        elif isinstance(token, UnaryOperator):
+            operators.append(token)
+
+        elif isinstance(token, BinaryOperator):
             while operators and not isinstance(operators[-1], OpenParenthesis) and operator_precedence(operators[-1]) >= operator_precedence(token):
                 postfix.append(operators.pop())
             operators.append(token)
 
-        elif isinstance(token, BooleanLiteral):
-            postfix.append(token)
-
-        elif isinstance(token, Variable):
+        elif isinstance(token, SimpleExpression):
             postfix.append(token)
 
         else:
@@ -289,10 +287,8 @@ def evaluate_binary_operator(op: Operator, lhs: expression.Expression, rhs: expr
 def evaluate_postfix(postfix: List[Token]) -> Union[expression.Expression, None]:
     if len(postfix) == 0:
         return None
-    postfix = postfix.copy()
     operands: List[expression.Expression] = []
-    while postfix:
-        token = postfix.pop(0)
+    for token in postfix:
         if isinstance(token, UnaryOperator):
             assert len(operands) >= 1
             arg = operands.pop()
