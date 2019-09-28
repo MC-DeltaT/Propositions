@@ -1,8 +1,7 @@
+from boolean import F, T
 from expression import CompoundExpression, Expression, SimpleExpression
 from truthtable import join_tables, TruthTable
-from boolean import F, T
-
-from abc import ABC, abstractmethod
+from utility import cached_property
 
 
 __all__ = [
@@ -21,23 +20,17 @@ __all__ = [
 ]
 
 
-class Operation(CompoundExpression, ABC):
-    @property
-    @abstractmethod
-    def join(self) -> TruthTable:
-        pass
+class Operation(CompoundExpression):
+    join: TruthTable = None
 
 
-class UnaryOperation(Operation, ABC):
+class UnaryOperation(Operation):
+    symbol: str = None
+
     def __init__(self, rhs: Expression) -> None:
         self.rhs = rhs
 
-    @property
-    @abstractmethod
-    def symbol(self) -> str:
-        pass
-
-    @property
+    @cached_property
     def truth(self) -> TruthTable:
         table = join_tables(self.join, (self.rhs.truth,))
         table.name = str(self)
@@ -54,42 +47,31 @@ class UnaryOperation(Operation, ABC):
 
 
 class Identity(UnaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(1, {
+    symbol = ""
+
+    join = TruthTable(1, {
             (F,): F,
             (T,): T
         })
 
-    @property
-    def symbol(self) -> str:
-        return ""
-
 
 class Negation(UnaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(1, {
+    symbol = "~"
+
+    join = TruthTable(1, {
             (F,): T,
             (T,): F
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "~"
+        }, symbol)
 
 
-class BinaryOperation(Operation, ABC):
+class BinaryOperation(Operation):
+    symbol: str = None
+
     def __init__(self, lhs: Expression, rhs: Expression) -> None:
         self.lhs = lhs
         self.rhs = rhs
 
-    @property
-    @abstractmethod
-    def symbol(self) -> str:
-        pass
-
-    @property
+    @cached_property
     def truth(self) -> TruthTable:
         table = join_tables(self.join, (self.lhs.truth, self.rhs.truth))
         table.name = str(self)
@@ -103,78 +85,58 @@ class BinaryOperation(Operation, ABC):
 
 
 class Conjunction(BinaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(2, {
+    symbol = "&"
+
+    join = TruthTable(2, {
             (F, F): F,
             (F, T): F,
             (T, F): F,
             (T, T): T
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "&"
+        }, symbol)
 
 
 class Disjunction(BinaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(2, {
+    symbol = "|"
+
+    join = TruthTable(2, {
             (F, F): F,
             (F, T): T,
             (T, F): T,
             (T, T): T
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "|"
+        }, symbol)
 
 
 class ExclDisjunction(BinaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(2, {
+    symbol = "+"
+
+    join = TruthTable(2, {
             (F, F): F,
             (F, T): T,
             (T, F): T,
             (T, T): F
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "+"
+        }, symbol)
 
 
 class Implication(BinaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(2, {
+    symbol = "->"
+
+    join = TruthTable(2, {
             (F, F): T,
             (F, T): T,
             (T, F): F,
             (T, T): T
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "->"
+        }, symbol)
 
 
 class Biconditional(BinaryOperation):
-    @property
-    def join(self) -> TruthTable:
-        return TruthTable(2, {
+    symbol = "<->"
+
+    join = TruthTable(2, {
             (F, F): T,
             (F, T): F,
             (T, F): F,
             (T, T): T
-        }, self.symbol)
-
-    @property
-    def symbol(self) -> str:
-        return "<->"
+        }, symbol)
 
 
 unary_operations = [

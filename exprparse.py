@@ -1,6 +1,6 @@
+import boolean
 import expression
 import operation
-import boolean
 
 from abc import ABC, abstractmethod
 import re

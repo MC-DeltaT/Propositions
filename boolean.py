@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from typing import Any
 
 
@@ -13,11 +11,8 @@ __all__ = [
 ]
 
 
-class BooleanValue(ABC):
-    @property
-    @abstractmethod
-    def value(self) -> bool:
-        pass
+class BooleanValue:
+    value: bool = None
 
     def __bool__(self) -> bool:
         return self.value
@@ -27,9 +22,7 @@ class BooleanValue(ABC):
 
 
 class FalseType(BooleanValue):
-    @property
-    def value(self) -> bool:
-        return False
+    value = False
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, FalseType)
@@ -42,9 +35,7 @@ class FalseType(BooleanValue):
 
 
 class TrueType(BooleanValue):
-    @property
-    def value(self) -> bool:
-        return True
+    value = True
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, TrueType)

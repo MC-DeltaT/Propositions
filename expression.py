@@ -1,7 +1,7 @@
-from truthtable import Input, TruthTable
 from boolean import BooleanValue, F, T
+from truthtable import Input, TruthTable
+from utility import cached_property
 
-from abc import ABC, abstractmethod
 from typing import Any, Set
 
 
@@ -16,11 +16,10 @@ __all__ = [
 ]
 
 
-class Expression(ABC):
-    @property
-    @abstractmethod
+class Expression:
+    @cached_property
     def truth(self) -> TruthTable:
-        pass
+        return None
 
     @property
     def values(self) -> Set[BooleanValue]:
@@ -51,11 +50,11 @@ class Expression(ABC):
         return self.truth.distribution[value]
 
 
-class SimpleExpression(Expression, ABC):
+class SimpleExpression(Expression):
     pass
 
 
-class CompoundExpression(Expression, ABC):
+class CompoundExpression(Expression):
     pass
 
 
@@ -63,7 +62,7 @@ class Literal(SimpleExpression):
     def __init__(self, value: BooleanValue) -> None:
         self.value = value
 
-    @property
+    @cached_property
     def truth(self) -> TruthTable:
         return TruthTable((Input(self.value, {self.value}),), {
             (self.value,): self.value
@@ -87,7 +86,7 @@ class Variable(SimpleExpression):
             raise ValueError("name must contain only letters.")
         self.name = name
 
-    @property
+    @cached_property
     def truth(self) -> TruthTable:
         return TruthTable((Input(self),), {
             (F,): F,

@@ -1,6 +1,6 @@
 import boolean
 import exprparse
-import utility
+import exprutility
 
 from itertools import count
 import sys
@@ -136,7 +136,7 @@ def encode(input_path: str, output_path: str) -> None:
 
     bits = bytes_to_bits(bytes_)
 
-    exprs = (utility.random_expression_with_value(4, 5, boolean.from_bool(b)) for b in bits)
+    exprs = (exprutility.random_expression_with_value(4, 5, boolean.from_bool(b)) for b in bits)
 
     try:
         output_file = open(output_path, mode="x", encoding="ascii")
