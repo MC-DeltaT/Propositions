@@ -1,5 +1,6 @@
 from boolean import BooleanValue, F, T
 
+from itertools import product
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 
@@ -96,19 +97,4 @@ def join_tables(join_op: TruthTable, tables: Sequence[TruthTable]) -> TruthTable
 
 
 def value_combinations(inputs: Sequence[Input]) -> List[Tuple[BooleanValue, ...]]:
-    var_values = [list(var.values) for var in inputs]
-    indices = [0] * len(inputs)
-    result: List[Tuple[BooleanValue, ...]] = []
-    while True:
-        combo = tuple(values[idx] for values, idx in zip(var_values, indices))
-        result.append(combo)
-        carry = True
-        for i in reversed(range(len(inputs))):
-            if carry:
-                indices[i] = (indices[i] + 1) % len(var_values[i])
-                if indices[i] != 0:
-                    carry = False
-                    break
-        if carry:
-            break
-    return result
+    return list(product(*map(lambda i: i.values, inputs)))
