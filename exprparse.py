@@ -120,7 +120,7 @@ class InvalidSyntax(ValueError):
         self.message = message
 
     def __str__(self):
-        return "At position {}: {}".format(self.pos, self.message)
+        return f"At position {self.pos}: {self.message}"
 
 
 # A list of regexes defining the allowed tokens, and their associated classes.
@@ -209,7 +209,7 @@ def str_to_boolean(s: str) -> boolean.BooleanValue:
     elif s == "F":
         return boolean.F
     else:
-        raise AssertionError("Didn't expect string \"{}\".".format(s))
+        raise AssertionError(f"Didn't expect string \"{s}\".")
 
 
 def check_syntax(tokens: Sequence[Token]) -> None:
@@ -217,7 +217,7 @@ def check_syntax(tokens: Sequence[Token]) -> None:
     prev_token = tokens[0]
     for token in tokens[1:]:
         if not is_token_allowed(prev_token, token):
-            raise InvalidSyntax(token.start_pos, "Unexpected {} after {}.".format(token.description, prev_token.description))
+            raise InvalidSyntax(token.start_pos, f"Unexpected {token.description} after {prev_token.description}.")
         prev_token = token
 
 
@@ -249,7 +249,7 @@ def infix_to_postfix(tokens: Sequence[Token]) -> List[Token]:
             postfix.append(token)
 
         else:
-            raise AssertionError("Didn't expect type `{}`.".format(type(token)))
+            raise AssertionError(f"Didn't expect type `{type(token)}`.")
 
     while operators:
         token = operators.pop()
@@ -303,7 +303,7 @@ def evaluate_postfix(postfix: List[Token]) -> Union[expression.Expression, None]
         elif isinstance(token, SimpleExpression):
             operands.append(token.expr)
         else:
-            raise AssertionError("Didn't expect type `{}`.".format(type(token)))
+            raise AssertionError(f"Didn't expect type `{type(token)}`.")
     assert len(operands) == 1
     assert isinstance(operands[-1], expression.Expression)
     return operands.pop()

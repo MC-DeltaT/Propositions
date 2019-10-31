@@ -39,7 +39,7 @@ class Input:
 class TruthTable:
     def __init__(self, inputs: Union[Sequence[Input], int], table: Mapping[Tuple[BooleanValue, ...], BooleanValue], name: Optional[str] = None) -> None:
         if isinstance(inputs, int):
-            self.inputs = tuple(Input.UniqueTag("<{}>".format(i + 1)) for i in range(inputs))
+            self.inputs = tuple(Input.UniqueTag(f"<{i + 1}>") for i in range(inputs))
         else:
             self.inputs = inputs
         self.table = table

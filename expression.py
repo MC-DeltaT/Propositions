@@ -75,7 +75,7 @@ class Literal(SimpleExpression):
         return str(self.value)
 
     def __repr__(self) -> str:
-        return "Literal(value={})".format(repr(self.value))
+        return f"Literal(value={repr(self.value)})"
 
 
 class Variable(SimpleExpression):
@@ -100,7 +100,7 @@ class Variable(SimpleExpression):
         return self.name
 
     def __repr__(self) -> str:
-        return "Variable(name={})".format(self.name)
+        return f"Variable(name={self.name})"
 
 
 literal_f = Literal(F)

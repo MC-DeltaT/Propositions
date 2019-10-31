@@ -38,12 +38,12 @@ class UnaryOperation(Operation):
 
     def __str__(self) -> str:
         if isinstance(self.rhs, SimpleExpression) or isinstance(self.rhs, UnaryOperation):
-            return "{}{}".format(self.symbol, self.rhs)
+            return f"{self.symbol}{self.rhs}"
         else:
-            return "({}{})".format(self.symbol, self.rhs)
+            return f"({self.symbol}{self.rhs})"
 
     def __repr__(self) -> str:
-        return "{}(rhs={})".format(self.__class__.__name__, repr(self.rhs))
+        return f"{self.__class__.__name__}(rhs={repr(self.rhs)})"
 
 
 class Identity(UnaryOperation):
@@ -78,10 +78,10 @@ class BinaryOperation(Operation):
         return table
 
     def __str__(self) -> str:
-        return "({} {} {})".format(self.lhs, self.symbol, self.rhs)
+        return f"({self.lhs} {self.symbol} {self.rhs})"
 
     def __repr__(self) -> str:
-        return "{}(lhs={}, rhs={})".format(self.__class__.__name__, repr(self.lhs), repr(self.rhs))
+        return f"{self.__class__.__name__}(lhs={repr(self.lhs)}, rhs={repr(self.rhs)})"
 
 
 class Conjunction(BinaryOperation):
