@@ -139,15 +139,15 @@ class Biconditional(BinaryOperation):
         }, symbol)
 
 
-unary_operations = [
+unary_operations = (
     Identity,
     Negation
-]
+)
 
-binary_operations = [
+binary_operations = (
     Biconditional,
     Conjunction,
     Disjunction,
     ExclDisjunction,
     Implication
-]
+)

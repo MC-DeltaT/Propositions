@@ -2,7 +2,7 @@ from boolean import BooleanValue, F, T
 from truthtable import Input, TruthTable
 from utility import cached_property
 
-from typing import Any, Set
+from typing import Any, FrozenSet
 
 
 __all__ = [
@@ -22,7 +22,7 @@ class Expression:
         return None
 
     @property
-    def values(self) -> Set[BooleanValue]:
+    def values(self) -> FrozenSet[BooleanValue]:
         return self.truth.outputs
 
     @property

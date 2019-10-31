@@ -1,7 +1,7 @@
 from boolean import BooleanValue, F, T
 
 from itertools import product
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Dict, FrozenSet, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 
 __all__ = [
@@ -25,9 +25,9 @@ class Input:
 
     def __init__(self, tag: Optional[Any] = None, values: Optional[Set[BooleanValue]] = None) -> None:
         if values is None:
-            self.values = {F, T}
+            self.values = frozenset((F, T))
         else:
-            self.values = values
+            self.values = frozenset(values)
         if tag is None:
             self.tag = self.UniqueTag("<no_tag>")
         else:
@@ -47,8 +47,8 @@ class TruthTable:
         self.name = name
 
     @property
-    def outputs(self) -> Set[BooleanValue]:
-        return set(self.table.values())
+    def outputs(self) -> FrozenSet[BooleanValue]:
+        return frozenset(self.table.values())
 
     @property
     def distribution(self) -> Dict[BooleanValue, float]:
