@@ -14,7 +14,7 @@ __all__ = [
 def random_expression(max_vars: int, max_depth: int) -> Expression:
     if not 0 <= max_vars <= 26:
         raise ValueError("max_vars must be >= 0 and <= 26.")
-    if max_vars <= 0:
+    if max_depth <= 0:
         raise ValueError("max_depth must be > 0.")
 
     variables = random.choices([Variable(c) for c in "abcdefghijklmnopqrstuvwxyz"], k=max_vars)
