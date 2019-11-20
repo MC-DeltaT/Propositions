@@ -40,6 +40,8 @@ def decode_lines(lines) -> Iterator[int]:
     j = 0
     for i, line in enumerate(lines, 1):
         line = line.strip()
+        if not line:
+            raise DecodeError(i, "Line must not be blank.")
         try:
             expr = exprparse.parse(line)
         except exprparse.InvalidSyntax as e:
@@ -76,7 +78,7 @@ def decode(input_path: str, output_path: str) -> None:
             return
         print(" done")
 
-    if len(lines) % 8 != 0 is None:
+    if len(lines) % 8 != 0:
         print("Number of input bits is not a multiple of 8.")
         return
 
