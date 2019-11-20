@@ -233,7 +233,7 @@ def infix_to_postfix(tokens: Sequence[Token]) -> List[Token]:
             try:
                 while not isinstance(operators[-1], OpenParenthesis):
                     postfix.append(operators.pop())
-            except ValueError:
+            except IndexError:
                 raise InvalidSyntax(token.start_pos, "Unmatched closing parenthesis.")
             operators.pop()
 
